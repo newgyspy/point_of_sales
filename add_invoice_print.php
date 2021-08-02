@@ -1,0 +1,289 @@
+<?php
+session_start(); // Use session variable on this page. This function must put on the top of page.
+if(!isset($_SESSION['username']) || $_SESSION['usertype'] !='admin'){ // if session variable "username" does not exist.
+header("location:index.php?msg=Please%20login%20to%20access%20admin%20area%20!"); // Re-direct to index.php
+}
+else
+{
+	include_once "db.php"; 
+	error_reporting (E_ALL ^ E_NOTICE);
+	if(isset($_GET['sid']))
+	{
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Invoice</title>
+<style type="text/css" media="print">
+.hide{display:none}
+
+</style>
+<script type="text/javascript">
+function printpage() {
+document.getElementById('printButton').style.visibility="hidden";
+window.print();
+document.getElementById('printButton').style.visibility="visible";  
+}
+</script>
+<style type="text/css">
+<!--
+.style1 {font-size: 10px}
+-->
+</style>
+</head>
+
+<body onload="setTimeout('startCountDown()',2000);" onmousemove="resetTimer();">
+
+<form name="counter"><input type="text" size="5" name="timer" disabled="disabled" /></form> 
+
+
+<script type="text/javascript"> 
+<!--   
+ // edit startSeconds as you see fit 
+ // simple timer example provided by Thomas
+
+ var startSeconds = 700;
+ var milisec = 0;
+ var seconds=startSeconds;
+ var countdownrunning = false
+ var idle = false;
+ document.counter.timer.value=startSeconds;
+
+function CountDown()
+{ 
+    if(idle == true)
+    {
+
+        if (milisec<=0)
+        { 
+            milisec=9 
+            seconds-=1 
+        } 
+        if (seconds<=-1)
+        { 
+            document.location='logout.php';
+            milisec=0 
+            seconds+=1 
+            return;
+        } 
+        else 
+        milisec-=1; 
+        document.counter.timer.value=seconds;
+        setTimeout("CountDown()",100);
+    }
+    else
+    {
+        return;
+    } 
+}
+function startCountDown()
+{
+   document.counter.timer.value=startSeconds;
+   seconds = startSeconds;
+   milisec = 0
+
+   document.counter.timer.style.display = 'block';
+   idle = true;
+   CountDown();
+   document.getElementById("alert").innerHTML = 'You are idle. you will be logged out after ' + startSeconds + ' seconds.';
+   countdownrunning = false;   
+}
+
+function resetTimer()
+{ 
+    document.counter.timer.style.display = 'none';
+    idle = false;    
+    document.getElementById("alert").innerHTML = '';
+
+
+    if(!countdownrunning)
+        setTimeout('startCountDown()',2000);
+
+    countdownrunning = true;
+
+}
+
+--> 
+</script>
+<input name="print" type="button" value="Print" id="printButton" onClick="printpage()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td align="center" valign="top">
+	
+	<table width="595"  cellspacing="0" cellpadding="0" id="bordertable"  border="1">
+      <tr>
+	<td> <center><img src="logos/cat.jpg" width="200" height="62" border="0"><strong>Guardian Pharmacy</strong><img src="logos/komatsu.jpg" width="200" height="62" border="0"></center></td>
+        
+		
+
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td width="67%" align="left" valign="top">&nbsp;&nbsp;&nbsp;Date: <?php
+			  $sid=$_GET['sid'];
+			$line = $db->queryUniqueObject("SELECT * FROM invoice WHERE autoid='$sid' ");
+			
+			$mysqldate=$line->date;
+
+ 		$phpdate = strtotime( $mysqldate );
+
+ 		$phpdate = date("d/m/Y",$phpdate);
+		echo $phpdate;
+			  ?> 
+                &nbsp;&nbsp;&nbsp;Invoice No: <?php echo $sid;?>
+                
+               
+				
+				  </strong><br /></td>
+
+                  
+              </div></td>
+            </tr>
+          </table></td>
+      </tr>
+      <tr>
+        
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            
+              <?php 
+				echo $line->customer_id;
+				///$cname=$line->customer_id;
+				
+				$line2 = $db->queryUniqueObject("SELECT * FROM invoice WHERE autoid='$sid' ");
+				
+				//echo $line2->customer_address;
+				?>
+				
+            
+          </table>
+      </tr>
+        <td><table width="100%" border="2" cellspacing="0" cellpadding="0">
+          <tr>
+            
+            <td width="22%" bgcolor="#CCCCCC"><strong>Seller</strong></td>
+              <td width="22%" bgcolor="#CCCCCC"><strong>Buyer</strong></td>
+            <td width="18%" bgcolor="#CCCCCC"><strong>Delivery note</strong></td>
+            <td width="19%" bgcolor="#CCCCCC"><strong>Payment terms</strong></td>
+         
+            <td width="18%" bgcolor="#CCCCCC"><strong>Supplier`s reference</strong></td>
+            <td width="18%" bgcolor="#CCCCCC"><strong>Other reference(s)</strong></td>
+            
+            
+        <td width="18%" bgcolor="#CCCCCC"><strong>Buyers order No</strong></td>
+        <td width="18%" bgcolor="#CCCCCC"><strong>Despatch document No</strong></td>
+        <td width="18%" bgcolor="#CCCCCC"><strong>Dispatched through</strong></td>
+        <td width="18%" bgcolor="#CCCCCC"><strong>Terms of delivery</strong></td>
+        
+        <td width="18%" bgcolor="#CCCCCC"><strong>Name of goods</strong></td>
+        
+        <td width="18%" bgcolor="#CCCCCC"><strong>Quantity</strong></td>
+        
+        <td width="18%" bgcolor="#CCCCCC"><strong>Rate</strong></td>
+        
+        <td width="18%" bgcolor="#CCCCCC"><strong>Total</strong></td>
+       
+        
+        
+        
+          </tr>
+		  
+          <tr>
+            <td align="center">&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+          
+		  <?php
+		  $i=1;
+		 $db->query("SELECT * FROM invoice WHERE autoid='$sid' ");
+while ($line3 = $db->fetchNextObject()) {
+?>
+          <tr>
+            
+           
+            <td><?php echo $line3->seller; ?></td>
+               <td><?php echo $line3->buyer; ?></td>
+            <td><?php echo $line3->deliverynote; ?></td>
+            <td><?php echo $line3->paymentterms; ?></td>
+           
+            <td><?php echo $line3->suppliersref	; ?></td>
+            
+           
+            <td><?php echo $line3->otherref ; ?></td>
+            
+            
+            <td><?php echo $line3->buyersorderno ; ?></td>
+            
+            
+            <td><?php echo $line3->dispatchno	; ?></td>
+            
+            
+            <td><?php echo $line3->dispatchthrough; ?></td>
+            
+           
+            <td><?php echo $line3->termsofdelivery	; ?></td>
+            
+            
+            
+         
+            <td><?php echo $line3->stock_name	; ?></td>
+            
+            
+         
+            <td><?php echo $line3->quantity	; ?></td>
+            
+           
+            <td><?php echo $line3->rate	; ?></td>
+            
+            
+            <td><?php echo $line3->total	; ?></td>
+
+          
+          </tr>
+      
+		  
+		  <?php
+		    
+}
+		  ?>
+        
+        </table></td>
+      
+	  <tr>
+	  <td><table width="100%" border="0" cellspacing="0" cellpadding="0">
+        
+      </table>
+          
+      
+      <tr>
+        <td align="right"><table width="100%" border="0" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="33%" align="left" valign="top"><br />
+              
+
+              </strong> </td>
+            <td width="67%" align="right"><br />
+              <br />
+              <br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+          </tr>
+        </table></td>
+      </tr>
+      <tr>
+       
+        <td align="center" bgcolor="#CCCCCC">Thank you for Business with our show motors.<br/><br/>  <?php echo "You have been served by"." ".$_SESSION['username']; ?> </td>
+      </tr>
+    </table></td>
+  </tr>
+</table>
+
+
+</body>
+</html>
+<?php
+}
+else "Error in processing printing the sales receipt";
+}
+?>
